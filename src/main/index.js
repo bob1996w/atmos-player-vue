@@ -47,8 +47,22 @@ app.on('activate', () => {
 const {ipcMain} = require('electron');
 const dialog = require('electron').dialog;
 
+
+
 // opening music files
 ipcMain.on('openFileRequest', async (event, data) => {
+  function getMetaData(filename){
+    var musicData = {};
+    var fs = require('fs');
+    var mm = require('musicmetadata'); 
+    mm(fs.createReadStream(filename), (err, metadata) => {
+        // TODO: callback is async!!
+      if (err) throw err;
+      musicData['meta'] = JSON.parse(JSON.stringify(metadata));
+      musicData['path'] = filename;
+      event.sender.send('get-musics', musicData);
+    });
+  };
   var filenames = dialog.showOpenDialog({
     title: "Select Music...",
     properties: [
@@ -58,24 +72,11 @@ ipcMain.on('openFileRequest', async (event, data) => {
       {name: 'supported music files', extensions: ['mp3', 'flac']}
     ]
   })
-  console.log(filenames);
   if(filenames === undefined){
     console.log("Nothing selected");
   }else{
-    var fs = require('fs');
-    var mm = require('musicmetadata');
-    var musicTagData = [];
-    
-    for (var i = 0; i < filenames.length; i++){
-      var musicData = {};
-      var parser = mm(fs.createReadStream(filenames[i]), async (err, metadata) => {
-        // TODO: callback is async!!
-        if (err) throw err;
-        musicData = JSON.parse(JSON.stringify(metadata));
-      });
-      musicData['path'] = filenames[i];
-      musicTagData.push(musicData);
+    for(var i = 0 ; i < filenames.length; i++) {
+      getMetaData(filenames[i]);
     }
-    event.sender.send('get-musics', musicTagData);
   }
 });

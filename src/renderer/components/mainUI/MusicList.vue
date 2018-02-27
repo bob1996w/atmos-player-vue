@@ -1,30 +1,26 @@
 <template>
     <div class="music-list">
-        <ul v-for="music in musics">
-            <li>{{$index}} - {{item.path}}</li>
+        <ul>
+            <template v-for="music in musics">
+                <li>{{music.meta.title}}</li>
+            </template>
         </ul>
     </div>
 </template>
 
 <script>
-var musics = [];
 export default {
     name: "music-list",
     mounted: function() {
     // initialize all tooltips
-    /*
-    var tooltipElems = this.$el.querySelector('[data-toggle="tooltip"]');
-    tooltipElems.tooltip();
-    console.log(tooltipElems);
-    */
     this.$electron.ipcRenderer.on('get-musics',(event ,arg) => {
-      musics = arg;
-      console.log(musics)
+      this.musics.push(arg);
+      console.log(arg)
     })
   },
     data: function() {
         return {
-            musics
+            musics: []
         };
     },
 }
