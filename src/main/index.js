@@ -49,17 +49,32 @@ const dialog = require('electron').dialog;
 
 // opening music files
 ipcMain.on('openFileRequest', function(event, data) {
-  dialog.showOpenDialog({
+  var filenames = dialog.showOpenDialog({
     title: "Select Music...",
+    properties: [
+      'multiSelections'
+    ],
     filters: [
-      {name: 'mp3 files', extensions: ['mp3']}
+      {name: 'supported music files', extensions: ['mp3', 'flac']}
     ]
-  }, function(filename){
-    console.log(filename);
-    if(filename === undefined){
-      console.log("NO the sun is a deadly laser");
-    }else{
-      console.log("Not anymore there's a blanket");
+  })
+  console.log(filenames);
+  if(filenames === undefined){
+    console.log("NO the sun is a deadly laser");
+  }else{
+    var fs = require('fs');
+    var mm = require('musicmetadata');
+    var musicTagData = [];
+    
+    for (var i = 0; i < filenames.length; i++){
+      var musicData = {};
+      var parser = mm(fs.createReadStream(filenames[i]), function(err, metadata) {
+        // TODO: callback is async!!
+        if (err) throw err;
+        musicData = JSON.parse(JSON.stringify(metadata));
+      });
+      musicData['path'] = filenames[i];
+      musicTagData.push(musicData);
     }
-  });
+  }
 });
