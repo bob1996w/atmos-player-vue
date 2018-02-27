@@ -22,35 +22,10 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-
-console.log(require.resolve('electron'))
 /* eslint-disable no-new */
 new Vue({
   components: { App },
   router,
   store,
-  template: '<App/>',
-  mounted: function(){
-    console.log("/");
-    console.log(require.resolve('electron'))
-    const {ipcMain} = require('electron');
-    const {dialog} = require('electron').remote;
-
-    // opening music files
-    ipcMain.on('openFileRequest', function(event, data) {
-      dialog.showOpenDialog({
-        title: "Select Music...",
-        filters: [
-          {name: 'mp3 files', extensions: ['mp3']}
-        ]
-      }, function(filename){
-        console.log(filename);
-        if(filename === undefined){
-          console.log("NO the sun is a deadly laser");
-        }else{
-          console.log("Not anymore there's a blanket");
-        }
-      });
-    });
-  }
+  template: '<App/>'
 }).$mount('#app')

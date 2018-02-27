@@ -43,3 +43,23 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+const {ipcMain} = require('electron');
+const dialog = require('electron').dialog;
+
+// opening music files
+ipcMain.on('openFileRequest', function(event, data) {
+  dialog.showOpenDialog({
+    title: "Select Music...",
+    filters: [
+      {name: 'mp3 files', extensions: ['mp3']}
+    ]
+  }, function(filename){
+    console.log(filename);
+    if(filename === undefined){
+      console.log("NO the sun is a deadly laser");
+    }else{
+      console.log("Not anymore there's a blanket");
+    }
+  });
+});
