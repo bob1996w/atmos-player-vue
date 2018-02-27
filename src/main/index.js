@@ -48,7 +48,7 @@ const {ipcMain} = require('electron');
 const dialog = require('electron').dialog;
 
 // opening music files
-ipcMain.on('openFileRequest', function(event, data) {
+ipcMain.on('openFileRequest', async (event, data) => {
   var filenames = dialog.showOpenDialog({
     title: "Select Music...",
     properties: [
@@ -60,7 +60,7 @@ ipcMain.on('openFileRequest', function(event, data) {
   })
   console.log(filenames);
   if(filenames === undefined){
-    console.log("NO the sun is a deadly laser");
+    console.log("Nothing selected");
   }else{
     var fs = require('fs');
     var mm = require('musicmetadata');
@@ -68,7 +68,7 @@ ipcMain.on('openFileRequest', function(event, data) {
     
     for (var i = 0; i < filenames.length; i++){
       var musicData = {};
-      var parser = mm(fs.createReadStream(filenames[i]), function(err, metadata) {
+      var parser = mm(fs.createReadStream(filenames[i]), async (err, metadata) => {
         // TODO: callback is async!!
         if (err) throw err;
         musicData = JSON.parse(JSON.stringify(metadata));
@@ -76,5 +76,6 @@ ipcMain.on('openFileRequest', function(event, data) {
       musicData['path'] = filenames[i];
       musicTagData.push(musicData);
     }
+    event.sender.send('get-musics', musicTagData);
   }
 });
