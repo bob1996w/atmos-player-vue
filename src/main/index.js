@@ -46,7 +46,7 @@ app.on('activate', () => {
 
 const {ipcMain} = require('electron');
 const dialog = require('electron').dialog;
-
+const path = require('path');
 
 
 // opening music files
@@ -56,9 +56,11 @@ ipcMain.on('openFileRequest', async (event, data) => {
     var fs = require('fs');
     var mm = require('musicmetadata'); 
     mm(fs.createReadStream(filename), (err, metadata) => {
-        // TODO: callback is async!!
       if (err) throw err;
       musicData['meta'] = JSON.parse(JSON.stringify(metadata));
+      if (musicData.meta.title == ""){
+        musicData.meta.title = path.basename(filename);
+      }
       musicData['path'] = filename;
       event.sender.send('get-musics', musicData);
     });
