@@ -69,7 +69,7 @@ export default {
 
     this.$electron.ipcRenderer.on('play-music-dispatch', function (event, data) {
       console.log(data);
-      if (this.isPlaying){
+      if (this.isMusicLoaded){
         this.playingSound.stop();
         this.playingSound.destruct();
         (window.URL || window.webkitURL).revokeObjectURL(this.playingObjectURL);
