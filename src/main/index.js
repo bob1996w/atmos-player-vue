@@ -55,7 +55,7 @@ ipcMain.on('openFileRequest', async (event, data) => {
     var musicData = {};
     var fs = require('fs');
     var mm = require('musicmetadata'); 
-    mm(fs.createReadStream(filename), (err, metadata) => {
+    mm(fs.createReadStream(filename), {duration: true}, (err, metadata) => {
       if (err) throw err;
       musicData['meta'] = JSON.parse(JSON.stringify(metadata));
       if (musicData.meta.title == ""){
