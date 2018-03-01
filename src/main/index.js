@@ -82,3 +82,8 @@ ipcMain.on('openFileRequest', async (event, data) => {
     }
   }
 });
+
+// throw playmusic job to playerControl
+ipcMain.on('play-music', function (event, data) {
+  event.sender.send('play-music-dispatch', data);
+});

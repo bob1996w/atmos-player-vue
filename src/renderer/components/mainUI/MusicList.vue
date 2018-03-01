@@ -30,6 +30,7 @@ export default {
         // initialize all tooltips
         this.$electron.ipcRenderer.on('get-musics',(event ,arg) => {
             this.musics.push(arg);
+            console.log(arg);
         })
     },
     data: function() {
@@ -49,7 +50,7 @@ export default {
                 broadcast music tags to PlayerControl (this.musics[index] object)
             */
             console.log("Play " + this.musics[index].path);
-
+            this.$electron.ipcRenderer.send('play-music', this.musics[index]);
         },
         removeMusicItem: function(index) {
             console.log("Remove " + this.musics[index].path);
