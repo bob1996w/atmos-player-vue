@@ -1,5 +1,5 @@
 <template>
-  <div class="container border border-white rounded">
+  <div class="border border-white rounded pc-bgc">
     <div class="progress m-2">
       <!-- TODO: change progressbar to slider with left & right elapse time display-->
       <div class="progress-bar bg-warning" role="progressbar" style="width: 26%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
@@ -8,7 +8,7 @@
       <div class="btn-group m-0 p-0" role="controlGroupA">
         <a class="btn btn-outline-primary btn-lg"><i class="fa fa-fast-backward"></i></a>
         <a class="btn btn-warning btn-lg" @click="toggleMusicPause()">
-          <template v-if="isPlaying">
+          <template v-if="isPlaying === true">
             <i class="fas fa-pause"></i>
           </template>
           <template v-else>
@@ -115,6 +115,9 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+  .pc-bgc {
+    background-color: rgb(68, 68, 68);
   }
 </style>
 
