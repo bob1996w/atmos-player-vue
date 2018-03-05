@@ -26,6 +26,7 @@
   "dependencies": {
     "axios": "^0.16.1",
     "bootstrap": "^4.0.0",
+    "bootstrap-slider": "^10.0.0",
     "bootstrap-vue": "^2.0.0-rc.1",
     "bulma": "^0.6.2",
     "jquery": "^3.3.1",

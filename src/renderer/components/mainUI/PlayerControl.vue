@@ -1,9 +1,20 @@
 <template>
   <div class="border border-white rounded pc-bgc">
-    <div class="progress m-2">
+    <div class="row m-0">
+      <div class="m-0 px-1 align-middle" :style="leftTimeStyle">
+        {{timeDisplayLeft()}}
+      </div>
+      <div class="col progress border border-gray p-0" style="height: 22px" @ mouseover="onMouseOverProgressbar" @mouseenter="onMouseEnterProgressbar" 
+          @mouseleave="onMouseLeaveProgressbar" @click="seekTime">
       <!-- TODO: change progressbar to slider with left & right elapse time display-->
-      <div class="progress-bar bg-warning" role="progressbar" style="width: 26%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-warning" role="progressbar" :aria-valuenow="elapseTime" aria-valuemin="0" :aria-valuemax="totalTime" 
+          :style="getElapsePercentStyle()"></div>
+      </div>
+      <div class="m-0 px-1 align-middle">
+        {{timeDisplayRight()}}
+      </div>
     </div>
+    
     <div class="row m-0">
       <div class="btn-group m-0 p-0" role="controlGroupA">
         <a class="btn btn-outline-primary btn-lg"><i class="fa fa-fast-backward"></i></a>
@@ -33,6 +44,7 @@
 <script>
 import '../../assets/soundmanager2/script/soundmanager2.js'
 const fs = require('fs')
+import { clearInterval } from 'timers';
 
 export default {
   name: "player-control",
@@ -46,7 +58,15 @@ export default {
       shuffle: true,
       songTitle: "A song never sung",
       songArtist: "Nobody",
-      songAlbum: "Just no one knows this album"
+      songAlbum: "Just no one knows this album",
+      elapseTime: 0,
+      elapsePercent: 0,
+      isHoverOnProgressbar: false,
+      totalTime: 0,
+      updateElapseTimeIntervalId: null,
+      leftTimeStyle: {
+        color: "white"
+      }
     }
   },
   computed: {
@@ -58,6 +78,7 @@ export default {
     // soundmanager2
     soundManager.setup({
       url: '../../assets/soundmanager2/swf/',
+      debugMode: false,
       onready: function() {
         console.log("Sound Manager startup")
         // use this.$soundManager to access soundmanager object
@@ -82,9 +103,15 @@ export default {
       this.playingObjectURL = (window.URL || window.webkitURL).createObjectURL(musicFileBlob);
       this.playingSound = soundManager.createSound({
         url: this.playingObjectURL,
+        onplay: function() {
+          this.totalTime = data.meta.duration;
+          //console.log(data.meta.duration);
+          this.updateElapseTimeIntervalId = setInterval(this.updateElapseTime, 100);
+        }.bind(this),
         onfinish: function() {
           this.isPlaying = false;
-        }
+          clearInterval(this.updateElapseTimeIntervalId);
+        }.bind(this)
       })
       this.songTitle = data.meta.title;
       this.songArtist = data.meta.artist.join(", ");
@@ -92,8 +119,8 @@ export default {
       this.isMusicLoaded = true;
       this.playingSound.play();
       this.isPlaying = true;
-      console.log(this.isPlaying);
     }.bind(this))
+
   },
   methods: {
     toggleMusicPause: function() {
@@ -102,6 +129,42 @@ export default {
         this.isPlaying = !this.isPlaying;
         this.playingSound.togglePause();
       }
+    },
+    getStringTime: function(seconds) {
+      var mins = ~~(seconds / 60);
+      var secs = ~~(seconds % 60);
+      return String( mins ) + "\'" + (secs < 10 ? "0" : "") + String( secs );
+    },
+    updateElapseTime: function() {
+      this.elapseTime = Math.floor(this.playingSound.position / 1000);
+    },
+    getElapsePercentStyle() {
+      return "width:" + this.elapseTime * 100 / this.totalTime + "%;";
+    },
+    onMouseOverProgressbar(event) {
+      console.log(event);
+    },
+    onMouseEnterProgressbar(event) {
+      this.isHoverOnProgressbar = true;
+      this.leftTimeStyle.color = "rgb(255, 193, 7)";
+    },
+    onMouseLeaveProgressbar(event) {
+      this.isHoverOnProgressbar = false;
+      this.leftTimeStyle.color = "white";
+    },
+    seekTime(event) {
+
+    },
+    timeDisplayLeft() {
+      if(this.isMusicLoaded && this.isHoverOnProgressbar) {
+        return this.getStringTime(0);
+      }
+      else {
+        return this.getStringTime(this.elapseTime);
+      }
+    },
+    timeDisplayRight() {
+      return this.getStringTime(this.totalTime);
     }
   }
 }
@@ -118,6 +181,14 @@ export default {
   }
   .pc-bgc {
     background-color: rgb(68, 68, 68);
+  }
+  
+  .progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
   }
 </style>
 
