@@ -16,7 +16,7 @@ import router from './router'
 import store from './store'
 
 // font-awesome
-import './assets/fontawesome-all'
+import './assets/fontawesome/css/fontawesome-all.css'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
