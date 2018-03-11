@@ -4,12 +4,7 @@
       <div class="m-0 px-1 align-middle" :style="leftTimeStyle">
         {{timeDisplayLeft()}}
       </div>
-      <div class="col progress border border-gray p-0" style="height: 22px" @ mouseover="onMouseOverProgressbar" @mouseenter="onMouseEnterProgressbar" 
-          @mouseleave="onMouseLeaveProgressbar" @click="seekTime">
-      <!-- TODO: change progressbar to slider with left & right elapse time display-->
-        <div class="progress-bar bg-warning" role="progressbar" :aria-valuenow="elapseTime" aria-valuemin="0" :aria-valuemax="totalTime" 
-          :style="getElapsePercentStyle()"></div>
-      </div>
+      <progress-bar :elapse-time="elapseTime" :total-time="totalTime" @mouse-status="progressbarMouseEvent"></progress-bar>
       <div class="m-0 px-1 align-middle">
         {{timeDisplayRight()}}
       </div>
@@ -46,8 +41,12 @@ import '../../assets/soundmanager2/script/soundmanager2.js'
 const fs = require('fs')
 import { clearInterval } from 'timers';
 
+import ProgressBar from "./ProgressBar";
 export default {
   name: "player-control",
+  components: {
+    ProgressBar
+  },
   data: function() {
     return {
       playingSound: {},
@@ -60,8 +59,8 @@ export default {
       songArtist: "Nobody",
       songAlbum: "Just no one knows this album",
       elapseTime: 0,
-      elapsePercent: 0,
       isHoverOnProgressbar: false,
+      hoverTime: 0,
       totalTime: 0,
       updateElapseTimeIntervalId: null,
       leftTimeStyle: {
@@ -138,26 +137,34 @@ export default {
     updateElapseTime: function() {
       this.elapseTime = Math.floor(this.playingSound.position / 1000);
     },
-    getElapsePercentStyle() {
-      return "width:" + this.elapseTime * 100 / this.totalTime + "%;";
+    progressbarMouseEvent(payload) {
+      switch (payload.type) {
+        case "hover":
+          if(payload.isHover) {
+            this.isHoverOnProgressbar = true;
+            this.leftTimeStyle.color = "rgb(255, 193, 7)";
+          }
+          else {
+            this.isHoverOnProgressbar = false;
+            this.leftTimeStyle.color = "white";
+          }
+          break;
+        case "pos":
+          this.hoverTime = payload.pos;
+          break;
+        case "seek":
+          this.seekTime(payload.pos);
+          break;
+        default:
+          break;
+      }
     },
-    onMouseOverProgressbar(event) {
-      console.log(event);
-    },
-    onMouseEnterProgressbar(event) {
-      this.isHoverOnProgressbar = true;
-      this.leftTimeStyle.color = "rgb(255, 193, 7)";
-    },
-    onMouseLeaveProgressbar(event) {
-      this.isHoverOnProgressbar = false;
-      this.leftTimeStyle.color = "white";
-    },
-    seekTime(event) {
-
+    seekTime(time) {
+      this.playingSound.setPosition(time * 1000);
     },
     timeDisplayLeft() {
       if(this.isMusicLoaded && this.isHoverOnProgressbar) {
-        return this.getStringTime(0);
+        return this.getStringTime(this.hoverTime);
       }
       else {
         return this.getStringTime(this.elapseTime);
